@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "gp-swift-storage-kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gpfister/gp-swift-storage-kit.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "cef39a8d9374910edb28a11a95fd7a432c9bdf81"
+      }
+    }
+  ],
+  "version" : 2
+}
