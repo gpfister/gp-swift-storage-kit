@@ -19,7 +19,7 @@ when misspelling the storage entry key.
 ## Getting started
 
 First, add the Swift package to your Xcode project (File -> Add Packages...):
-`https://github.com/gpfister/gp-swift-storakge-kt.git`.
+`https://github.com/gpfister/gp-swift-storage-kit`.
 
 Then, add the library `GPStorageKit` to your target dependencies.
 
