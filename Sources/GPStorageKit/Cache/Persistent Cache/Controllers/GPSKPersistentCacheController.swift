@@ -23,9 +23,9 @@
 import Combine
 import Foundation
 
-final class GPSCPersistentCacheController {
-    typealias GPCodableCacheController = GPSCCacheController<String, String>
-    static let shared = GPSCPersistentCacheController()
+final class GPSKPersistentCacheController {
+    typealias GPCodableCacheController = GPSKCacheController<String, String>
+    static let shared = GPSKPersistentCacheController()
 
     let name: String
     private let cacheController: GPCodableCacheController
@@ -50,14 +50,14 @@ final class GPSCPersistentCacheController {
         try? cacheController.saveCacheOnDisk()
     }
 
-    func value<GPSCValue: Codable>(forKey key: String) -> GPSCValue? {
+    func value<GPSKValue: Codable>(forKey key: String) -> GPSKValue? {
         let value = cacheController.readValue(forKey: key)
 
         guard let value else { return nil }
 
         guard let value = value.data(using: .utf8) else { return nil }
 
-        if let value = try? JSONDecoder().decode(GPSCValue.self, from: value) {
+        if let value = try? JSONDecoder().decode(GPSKValue.self, from: value) {
             return value
         } else {
             return nil

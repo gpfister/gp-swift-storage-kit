@@ -20,27 +20,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Combine
 import Foundation
 
-public final class GPSCMemoryCacheController {
-    public static let shared = GPSCMemoryCacheController()
-
-    let cache: GPSCCacheController<String, Any>
-
-    init(name: String = "data", maximumEntryCount: Int = 1024) {
-        cache = .init(name: name, maximumEntryCount: maximumEntryCount)
+public class GPSKStorageService {
+    public static var shared: GPSKStorageService {
+        if let _instance { return _instance }
+        else {
+            _instance = GPSKStorageService()
+            return _instance!
+        }
     }
 
-    func value(forKey key: String) -> Any? {
-        cache.readValue(forKey: key)
+    private static var _instance: GPSKStorageService?
+
+    public var userId: String?
+
+    private init() {}
+
+    public func resetAllData() {
+        GPSKUserDefaultsService.shared.resetAllData()
     }
 
-    func set(_ value: Any, forKey key: String, entryLifetime: TimeInterval) {
-        cache.storeValue(value, forKey: key, entryLifetime: entryLifetime)
-    }
-
-    func removeValue(forKey key: String) {
-        cache.removeValue(forKey: key)
+    public func resetUserData() {
+        GPSKUserDefaultsService.shared.resetUserData()
     }
 }

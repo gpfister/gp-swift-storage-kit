@@ -25,21 +25,21 @@ import Foundation
 
 /// References: https://www.avanderlee.com/swift/appstorage-explained/
 
-class GPSCPersistentCacheService {
-    static let shared = GPSCPersistentCacheService()
+class GPSKMemoryCacheService {
+    static let shared = GPSKMemoryCacheService()
 
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSCPersistentCacheValues>, Never>()
+    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKMemoryCacheValues>, Never>()
 
-    private let persistentCacheValues: GPSCPersistentCacheValues
+    private let memoryCacheValues: GPSKMemoryCacheValues
 
-    init(persistentCacheValues: GPSCPersistentCacheValues = .default) {
-        self.persistentCacheValues = persistentCacheValues
+    init(memoryCacheValues: GPSKMemoryCacheValues = .default) {
+        self.memoryCacheValues = memoryCacheValues
     }
 
-    subscript<GPSCValue>(_ keyPath: ReferenceWritableKeyPath<GPSCPersistentCacheValues, GPSCValue>) -> GPSCValue {
-        get { persistentCacheValues[keyPath: keyPath] }
+    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKMemoryCacheValues, GPSKValue>) -> GPSKValue {
+        get { memoryCacheValues[keyPath: keyPath] }
         set {
-            persistentCacheValues[keyPath: keyPath] = newValue
+            memoryCacheValues[keyPath: keyPath] = newValue
             valueChangedSubject.send(keyPath)
         }
     }

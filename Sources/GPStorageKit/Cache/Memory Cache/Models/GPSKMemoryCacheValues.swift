@@ -23,30 +23,30 @@
 import Combine
 import Foundation
 
-public class GPSCMemoryCacheValues {
-    public static let `default` = GPSCMemoryCacheValues()
+public class GPSKMemoryCacheValues {
+    public static let `default` = GPSKMemoryCacheValues()
 
-    private let memoryCache: GPSCMemoryCacheController
+    private let memoryCache: GPSKMemoryCacheController
 
-    init(memoryCache: GPSCMemoryCacheController = .shared) {
+    init(memoryCache: GPSKMemoryCacheController = .shared) {
         self.memoryCache = memoryCache
     }
 
-    public subscript<GPSCKey: GPSCMemoryCacheKey>(
-        _ memoryCacheKey: GPSCKey.Type
-    ) -> GPSCKey.GPSCValue {
+    public subscript<GPSKKey: GPSKMemoryCacheKey>(
+        _ memoryCacheKey: GPSKKey.Type
+    ) -> GPSKKey.GPSKValue {
         get {
-            guard (memoryCacheKey.isLinkedToUserId && GPSCStorageService.shared.userId != nil) || !memoryCacheKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSCUserDefaultValues] No userId set") }
-            let key = memoryCacheKey.isLinkedToUserId ? "user.\(GPSCStorageService.shared.userId ?? "").\(memoryCacheKey.key)" : memoryCacheKey.key
-            let value: GPSCKey.GPSCValue? = value(forKey: key)
+            guard (memoryCacheKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !memoryCacheKey.isLinkedToUserId
+            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            let key = memoryCacheKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(memoryCacheKey.key)" : memoryCacheKey.key
+            let value: GPSKKey.GPSKValue? = value(forKey: key)
             return value ?? memoryCacheKey.defaultValue
         }
         set {
-            guard (memoryCacheKey.isLinkedToUserId && GPSCStorageService.shared.userId != nil) || !memoryCacheKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSCUserDefaultValues] No userId set") }
-            let key = memoryCacheKey.isLinkedToUserId ? "user.\(GPSCStorageService.shared.userId ?? "").\(memoryCacheKey.key)" : memoryCacheKey.key
-            if let newValue = newValue as? GPSCOptionalValue, newValue.gpIsNil {
+            guard (memoryCacheKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !memoryCacheKey.isLinkedToUserId
+            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            let key = memoryCacheKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(memoryCacheKey.key)" : memoryCacheKey.key
+            if let newValue = newValue as? GPSKOptionalValue, newValue.gskIsNil {
                 removeValue(forKey: key)
             } else {
                 set(newValue, forKey: key, entryLifetime: memoryCacheKey.entryLifetime)
@@ -57,9 +57,9 @@ public class GPSCMemoryCacheValues {
 
 // MARK: - Private
 
-private extension GPSCMemoryCacheValues {
-    func value<GPSCValue>(forKey key: String) -> GPSCValue? {
-        memoryCache.value(forKey: key) as? GPSCValue
+private extension GPSKMemoryCacheValues {
+    func value<GPSKValue>(forKey key: String) -> GPSKValue? {
+        memoryCache.value(forKey: key) as? GPSKValue
     }
 
     func set(_ value: (some Any)?, forKey key: String, entryLifetime: TimeInterval) {

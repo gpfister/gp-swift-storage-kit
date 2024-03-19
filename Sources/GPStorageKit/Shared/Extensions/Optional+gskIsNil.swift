@@ -20,13 +20,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Combine
 import Foundation
 
-public protocol GPSCUserDefaultKey {
-    associatedtype GPSCValue: Equatable
-
-    static var key: String { get }
-    static var defaultValue: Self.GPSCValue { get }
-    static var isLinkedToUserId: Bool { get }
+extension Optional: GPSKOptionalValue {
+    public var gskIsNil: Bool {
+        self == nil
+    }
 }

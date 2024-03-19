@@ -22,7 +22,7 @@
 
 import Foundation
 
-enum GPSCKeychainError: Error {
+enum GPSKKeychainError: Error {
     case unableToRead(String)
     case unableToWrite(String)
     case unableToDelete(String)
@@ -30,7 +30,7 @@ enum GPSCKeychainError: Error {
     case unableToCreateSecKeyRepresentation(String)
 }
 
-extension GPSCKeychainError: CustomStringConvertible {
+extension GPSKKeychainError: CustomStringConvertible {
     var description: String {
         switch self {
             case let .unableToRead(message):
@@ -47,7 +47,7 @@ extension GPSCKeychainError: CustomStringConvertible {
     }
 }
 
-extension GPSCKeychainError: LocalizedError {
+extension GPSKKeychainError: LocalizedError {
     var errorDescription: String? {
         switch self {
             case let .unableToRead(message):

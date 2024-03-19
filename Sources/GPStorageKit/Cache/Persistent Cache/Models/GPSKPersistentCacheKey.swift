@@ -23,11 +23,11 @@
 import Combine
 import Foundation
 
-public protocol GPSCPersistentCacheKey {
-    associatedtype GPSCValue: Equatable, Codable
+public protocol GPSKPersistentCacheKey {
+    associatedtype GPSKValue: Equatable, Codable
 
     static var key: String { get }
-    static var defaultValue: Self.GPSCValue { get }
+    static var defaultValue: Self.GPSKValue { get }
     static var entryLifetime: TimeInterval { get }
     static var isLinkedToUserId: Bool { get }
 }

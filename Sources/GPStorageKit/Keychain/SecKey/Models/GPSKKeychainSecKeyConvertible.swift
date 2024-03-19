@@ -28,7 +28,7 @@ import Foundation
  * Reference: https://developer.apple.com/documentation/cryptokit/storing_cryptokit_keys_in_the_keychain
  */
 
-public protocol GPSCSecKeyConvertible /*: CustomStringConvertible */ {
+public protocol GPSKKeychainSecKeyConvertible /*: CustomStringConvertible */ {
     init(x963Representation: some ContiguousBytes) throws
     var x963Representation: Data { get }
 }

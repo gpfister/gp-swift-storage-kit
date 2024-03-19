@@ -20,10 +20,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+import Combine
 import Foundation
 
-extension Optional: GPSCOptionalValue {
-    public var gpIsNil: Bool {
-        self == nil
-    }
+public protocol GPSKKeychainSecKeyKey {
+    associatedtype GPSKValue: GPSKKeychainSecKeyConvertible
+
+    static var key: String { get }
+    static var defaultValue: Self.GPSKValue? { get }
+    static var isLinkedToUserId: Bool { get }
 }

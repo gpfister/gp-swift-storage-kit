@@ -27,14 +27,14 @@ import SwiftUI
 ///   - https://www.avanderlee.com/swift/appstorage-explained/
 ///   - https://www.hackingwithswift.com/quick-start/swiftui/observable-objects-environment-objects-and-published
 
-@propertyWrapper public struct GPSCKeychainSecKey<GPSCValue>: DynamicProperty {
-    @ObservedObject private var keychainObserver: GPObservableObject
+@propertyWrapper public struct GPSKKeychainSecKey<GPSKValue>: DynamicProperty {
+    @ObservedObject private var keychainObserver: GPSKObservableObject
 
-    private let keyPath: ReferenceWritableKeyPath<GPSCKeychainSecKeyValues, GPSCValue>
-    private let keychainSecKeyService = GPSCKeychainSecKeyService.shared
-    private let subject: CurrentValueSubject<GPSCValue, Never>
+    private let keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>
+    private let keychainSecKeyService = GPSKKeychainSecKeyService.shared
+    private let subject: CurrentValueSubject<GPSKValue, Never>
 
-    public init(_ keyPath: ReferenceWritableKeyPath<GPSCKeychainSecKeyValues, GPSCValue>) {
+    public init(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>) {
         self.keyPath = keyPath
         subject = .init(keychainSecKeyService[keyPath])
         let publisher = keychainSecKeyService.valueChangedSubject
@@ -50,7 +50,7 @@ import SwiftUI
         subject.send(keychainSecKeyService[keyPath])
     }
 
-    public var wrappedValue: GPSCValue {
+    public var wrappedValue: GPSKValue {
         get {
             subject.value
         }
@@ -59,7 +59,7 @@ import SwiftUI
         }
     }
 
-    public var projectedValue: Binding<GPSCValue> {
+    public var projectedValue: Binding<GPSKValue> {
         Binding(
             get: { subject.value },
             set: { wrappedValue = $0 }
@@ -69,8 +69,8 @@ import SwiftUI
 
 // MARK: - Private
 
-private extension GPSCKeychainSecKey {
-    final class GPObservableObject: ObservableObject {
+private extension GPSKKeychainSecKey {
+    final class GPSKObservableObject: ObservableObject {
         var subscriber: AnyCancellable?
 
         init(publisher: AnyPublisher<Void, Never>) {

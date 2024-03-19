@@ -23,30 +23,30 @@
 import Combine
 import Foundation
 
-public class GPSCPersistentCacheValues {
-    public static let `default` = GPSCPersistentCacheValues()
+public class GPSKPersistentCacheValues {
+    public static let `default` = GPSKPersistentCacheValues()
 
-    private let persistentCache: GPSCPersistentCacheController
+    private let persistentCache: GPSKPersistentCacheController
 
-    init(persistentCache: GPSCPersistentCacheController = .shared) {
+    init(persistentCache: GPSKPersistentCacheController = .shared) {
         self.persistentCache = persistentCache
     }
 
-    public subscript<GPSCKey: GPSCPersistentCacheKey>(
-        _ persistentCacheKey: GPSCKey.Type
-    ) -> GPSCKey.GPSCValue {
+    public subscript<GPSKKey: GPSKPersistentCacheKey>(
+        _ persistentCacheKey: GPSKKey.Type
+    ) -> GPSKKey.GPSKValue {
         get {
-            guard (persistentCacheKey.isLinkedToUserId && GPSCStorageService.shared.userId != nil) || !persistentCacheKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSCUserDefaultValues] No userId set") }
-            let key = persistentCacheKey.isLinkedToUserId ? "user.\(GPSCStorageService.shared.userId ?? "").\(persistentCacheKey.key)" : persistentCacheKey.key
-            let value: GPSCKey.GPSCValue? = value(forKey: key)
+            guard (persistentCacheKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !persistentCacheKey.isLinkedToUserId
+            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            let key = persistentCacheKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(persistentCacheKey.key)" : persistentCacheKey.key
+            let value: GPSKKey.GPSKValue? = value(forKey: key)
             return value ?? persistentCacheKey.defaultValue
         }
         set {
-            guard (persistentCacheKey.isLinkedToUserId && GPSCStorageService.shared.userId != nil) || !persistentCacheKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSCUserDefaultValues] No userId set") }
-            let key = persistentCacheKey.isLinkedToUserId ? "user.\(GPSCStorageService.shared.userId ?? "").\(persistentCacheKey.key)" : persistentCacheKey.key
-            if let newValue = newValue as? GPSCOptionalValue, newValue.gpIsNil {
+            guard (persistentCacheKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !persistentCacheKey.isLinkedToUserId
+            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            let key = persistentCacheKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(persistentCacheKey.key)" : persistentCacheKey.key
+            if let newValue = newValue as? GPSKOptionalValue, newValue.gskIsNil {
                 removeValue(forKey: key)
             } else {
                 set(newValue, forKey: key, entryLifetime: persistentCacheKey.entryLifetime)
@@ -57,13 +57,13 @@ public class GPSCPersistentCacheValues {
 
 // MARK: - Private
 
-private extension GPSCPersistentCacheValues {
-    func value<GPSCValue: Codable>(forKey key: String) -> GPSCValue? {
+private extension GPSKPersistentCacheValues {
+    func value<GPSKValue: Codable>(forKey key: String) -> GPSKValue? {
         let codedValue: String? = persistentCache.value(forKey: key)
 
         guard let codedValue, let data = codedValue.data(using: .utf8) else { return nil }
 
-        let value = try? JSONDecoder().decode(GPSCValue.self, from: data)
+        let value = try? JSONDecoder().decode(GPSKValue.self, from: data)
         return value
     }
 

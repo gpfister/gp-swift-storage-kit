@@ -24,8 +24,8 @@ import Combine
 import CryptoKit
 import Foundation
 
-public class GPSCKeychainSecKeyValues {
-    public static let `default` = GPSCKeychainSecKeyValues()
+public class GPSKKeychainSecKeyValues {
+    public static let `default` = GPSKKeychainSecKeyValues()
 
     var values: [String: Any] = [:]
 
@@ -35,20 +35,20 @@ public class GPSCKeychainSecKeyValues {
         self.domain = domain ?? Bundle.main.bundleIdentifier!
     }
 
-    public subscript<GPSCKey: GPSCKeychainSecKeyKey>(
-        _ keychainSecKeyKey: GPSCKey.Type
-    ) -> GPSCKey.GPSCValue? {
+    public subscript<GPSKKey: GPSKKeychainSecKeyKey>(
+        _ keychainSecKeyKey: GPSKKey.Type
+    ) -> GPSKKey.GPSKValue? {
         get {
-            guard (keychainSecKeyKey.isLinkedToUserId && GPSCStorageService.shared.userId != nil) || !keychainSecKeyKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSCUserDefaultValues] No userId set") }
-            let key = keychainSecKeyKey.isLinkedToUserId ? "user.\(GPSCStorageService.shared.userId ?? "").\(keychainSecKeyKey.key)" : keychainSecKeyKey.key
-            let secKey: GPSCKey.GPSCValue? = try? readSecKey(forKey: key)
+            guard (keychainSecKeyKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !keychainSecKeyKey.isLinkedToUserId
+            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            let key = keychainSecKeyKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(keychainSecKeyKey.key)" : keychainSecKeyKey.key
+            let secKey: GPSKKey.GPSKValue? = try? readSecKey(forKey: key)
             return secKey ?? keychainSecKeyKey.defaultValue
         }
         set {
-            guard (keychainSecKeyKey.isLinkedToUserId && GPSCStorageService.shared.userId != nil) || !keychainSecKeyKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSCUserDefaultValues] No userId set") }
-            let key = keychainSecKeyKey.isLinkedToUserId ? "user.\(GPSCStorageService.shared.userId ?? "").\(keychainSecKeyKey.key)" : keychainSecKeyKey.key
+            guard (keychainSecKeyKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !keychainSecKeyKey.isLinkedToUserId
+            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            let key = keychainSecKeyKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(keychainSecKeyKey.key)" : keychainSecKeyKey.key
             try? storeSecKey(newValue, forKey: key)
         }
     }
@@ -56,8 +56,8 @@ public class GPSCKeychainSecKeyValues {
 
 // MARK: - Private
 
-private extension GPSCKeychainSecKeyValues {
-    func readSecKey<T: GPSCSecKeyConvertible>(forKey key: String) throws -> T? {
+private extension GPSKKeychainSecKeyValues {
+    func readSecKey<T: GPSKKeychainSecKeyConvertible>(forKey key: String) throws -> T? {
         // Get the SecKey object
         let secKey = try internalReadSecKey(forKey: key)
 
@@ -69,13 +69,13 @@ private extension GPSCKeychainSecKeyValues {
         // Convert the SecKey into a CryptoKit key.
         var error: Unmanaged<CFError>?
         guard let data = SecKeyCopyExternalRepresentation(secKey, &error) as Data? else {
-            throw GPSCKeychainError.unableToParseSecKeyRepresentation(error.debugDescription)
+            throw GPSKKeychainError.unableToParseSecKeyRepresentation(error.debugDescription)
         }
         do {
             let key = try T(x963Representation: data)
             return key
         } catch {
-            throw GPSCKeychainError.unableToParseSecKeyRepresentation(error.localizedDescription)
+            throw GPSKKeychainError.unableToParseSecKeyRepresentation(error.localizedDescription)
         }
     }
 
@@ -93,13 +93,13 @@ private extension GPSCKeychainSecKeyValues {
         switch SecItemCopyMatching(query as CFDictionary, &item) {
             case errSecSuccess: secKey = item as! SecKey
             case errSecItemNotFound: return nil
-            case let status: throw GPSCKeychainError.unableToRead(status.message)
+            case let status: throw GPSKKeychainError.unableToRead(status.message)
         }
 
         return secKey
     }
 
-    func storeSecKey(_ secKey: (some GPSCSecKeyConvertible)?, forKey key: String) throws {
+    func storeSecKey(_ secKey: (some GPSKKeychainSecKeyConvertible)?, forKey key: String) throws {
         if let secKey {
             if (try? internalReadSecKey(forKey: key)) != nil {
                 try internalDeleteSecKey(forKey: key)
@@ -115,7 +115,7 @@ private extension GPSCKeychainSecKeyValues {
                                                     attributes as CFDictionary,
                                                     &error)
             else {
-                throw GPSCKeychainError.unableToCreateSecKeyRepresentation(error.debugDescription)
+                throw GPSKKeychainError.unableToCreateSecKeyRepresentation(error.debugDescription)
             }
 
             try internalStoreSecKey(secKey, forKey: key)
@@ -135,7 +135,7 @@ private extension GPSCKeychainSecKeyValues {
         // Add the key to the keychain.
         let status = SecItemAdd(query as CFDictionary, nil)
         guard status == errSecSuccess else {
-            throw GPSCKeychainError.unableToWrite(status.message)
+            throw GPSKKeychainError.unableToWrite(status.message)
         }
     }
 
@@ -149,7 +149,7 @@ private extension GPSCKeychainSecKeyValues {
         // Add the key to the keychain.
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess else {
-            throw GPSCKeychainError.unableToDelete(status.message)
+            throw GPSKKeychainError.unableToDelete(status.message)
         }
     }
 }

@@ -20,28 +20,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+import Combine
 import Foundation
 
-public class GPSCStorageService {
-    public static var shared: GPSCStorageService {
-        if let _instance { return _instance }
-        else {
-            _instance = GPSCStorageService()
-            return _instance!
+/// References: https://www.avanderlee.com/swift/appstorage-explained/
+
+class GPSKPersistentCacheService {
+    static let shared = GPSKPersistentCacheService()
+
+    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKPersistentCacheValues>, Never>()
+
+    private let persistentCacheValues: GPSKPersistentCacheValues
+
+    init(persistentCacheValues: GPSKPersistentCacheValues = .default) {
+        self.persistentCacheValues = persistentCacheValues
+    }
+
+    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKPersistentCacheValues, GPSKValue>) -> GPSKValue {
+        get { persistentCacheValues[keyPath: keyPath] }
+        set {
+            persistentCacheValues[keyPath: keyPath] = newValue
+            valueChangedSubject.send(keyPath)
         }
-    }
-
-    private static var _instance: GPSCStorageService?
-
-    public var userId: String?
-
-    private init() {}
-
-    public func resetAllData() {
-        GPSCUserDefaultsService.shared.resetAllData()
-    }
-
-    public func resetUserData() {
-        GPSCUserDefaultsService.shared.resetUserData()
     }
 }

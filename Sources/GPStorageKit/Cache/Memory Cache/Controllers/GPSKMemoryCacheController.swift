@@ -23,11 +23,24 @@
 import Combine
 import Foundation
 
-public protocol GPSCMemoryCacheKey {
-    associatedtype GPSCValue: Equatable
+public final class GPSKMemoryCacheController {
+    public static let shared = GPSKMemoryCacheController()
 
-    static var key: String { get }
-    static var defaultValue: Self.GPSCValue { get }
-    static var entryLifetime: TimeInterval { get }
-    static var isLinkedToUserId: Bool { get }
+    let cache: GPSKCacheController<String, Any>
+
+    init(name: String = "data", maximumEntryCount: Int = 1024) {
+        cache = .init(name: name, maximumEntryCount: maximumEntryCount)
+    }
+
+    func value(forKey key: String) -> Any? {
+        cache.readValue(forKey: key)
+    }
+
+    func set(_ value: Any, forKey key: String, entryLifetime: TimeInterval) {
+        cache.storeValue(value, forKey: key, entryLifetime: entryLifetime)
+    }
+
+    func removeValue(forKey key: String) {
+        cache.removeValue(forKey: key)
+    }
 }

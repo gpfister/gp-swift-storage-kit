@@ -29,24 +29,24 @@ import SwiftUI
 
 /// Wraps a user default to be published inside an ``ObserableObject``.
 ///
-@propertyWrapper public class GPSCPublishedPersistentCacheEntry<GPSCValue> {
-    private let keyPath: ReferenceWritableKeyPath<GPSCPersistentCacheValues, GPSCValue>
-    private let persistentCacheService = GPSCPersistentCacheService.shared
-    let subject: CurrentValueSubject<GPSCValue, Never>
-    let publisher: AnyPublisher<GPSCValue, Never>
+@propertyWrapper public class GPSKPublishedMemoryCacheEntry<GPSKValue> {
+    private let keyPath: ReferenceWritableKeyPath<GPSKMemoryCacheValues, GPSKValue>
+    private let memoryCacheService = GPSKMemoryCacheService.shared
+    private let subject: CurrentValueSubject<GPSKValue, Never>
+    private let publisher: AnyPublisher<GPSKValue, Never>
     private var cancellables = Set<AnyCancellable>()
 
-    public init(_ keyPath: ReferenceWritableKeyPath<GPSCPersistentCacheValues, GPSCValue>) {
+    public init(_ keyPath: ReferenceWritableKeyPath<GPSKMemoryCacheValues, GPSKValue>) {
         self.keyPath = keyPath
-        subject = .init(persistentCacheService[keyPath])
+        subject = .init(memoryCacheService[keyPath])
         publisher = subject.eraseToAnyPublisher()
-        persistentCacheService.valueChangedSubject
+        memoryCacheService.valueChangedSubject
             .filter { akeyPath in
                 akeyPath == keyPath
             }
             .eraseToAnyPublisher()
             .sink { _ in
-                self.subject.send(self.persistentCacheService[keyPath])
+                self.subject.send(self.memoryCacheService[keyPath])
             }
             .store(in: &cancellables)
     }
@@ -58,20 +58,20 @@ import SwiftUI
     }
 
     public func update() {
-        subject.send(persistentCacheService[keyPath])
+        subject.send(memoryCacheService[keyPath])
     }
 
     @available(*, unavailable, message: "Wrapped value should not be used.")
-    public var wrappedValue: GPSCValue {
+    public var wrappedValue: GPSKValue {
         get { fatalError() }
         set { fatalError() }
     }
 
     public static subscript<GPEnclosingType: ObservableObject>(
         _enclosingInstance instance: GPEnclosingType,
-        wrapped _: ReferenceWritableKeyPath<GPEnclosingType, GPSCValue>,
-        storage storageKeyPath: ReferenceWritableKeyPath<GPEnclosingType, GPSCPublishedPersistentCacheEntry>
-    ) -> GPSCValue {
+        wrapped _: ReferenceWritableKeyPath<GPEnclosingType, GPSKValue>,
+        storage storageKeyPath: ReferenceWritableKeyPath<GPEnclosingType, GPSKPublishedMemoryCacheEntry>
+    ) -> GPSKValue {
         get {
             instance[keyPath: storageKeyPath].subject.value
         }
@@ -80,9 +80,9 @@ import SwiftUI
                 (instance.objectWillChange as! ObservableObjectPublisher).send()
             }
             instance[keyPath: storageKeyPath].subject.send(newValue)
-            instance[keyPath: storageKeyPath].persistentCacheService[instance[keyPath: storageKeyPath].keyPath] = newValue
+            instance[keyPath: storageKeyPath].memoryCacheService[instance[keyPath: storageKeyPath].keyPath] = newValue
         }
     }
 
-    public var projectedValue: AnyPublisher<GPSCValue, Never> { publisher }
+    public var projectedValue: AnyPublisher<GPSKValue, Never> { publisher }
 }

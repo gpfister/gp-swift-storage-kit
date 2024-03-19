@@ -25,11 +25,11 @@ import Foundation
 
 /// Reference https://www.swiftbysundell.com/articles/caching-in-swift/
 
-public final class GPSCCacheController<GPSCKey: Hashable, GPSCValue>: NSObject, NSCacheDelegate {
+public final class GPSKCacheController<GPSKKey: Hashable, GPSKValue>: NSObject, NSCacheDelegate {
     var name: String
 
     private let wrapped = NSCache<GPWrappedKey, GPEntry>()
-    private let keyTracker = GPSCKeyTracker()
+    private let keyTracker = GPSKKeyTracker()
     private let fileManager: FileManager = .default
 
     init(name: String = "standard",
@@ -49,7 +49,7 @@ public final class GPSCCacheController<GPSCKey: Hashable, GPSCValue>: NSObject, 
         set { wrapped.countLimit = newValue }
     }
 
-    func readValue(forKey key: GPSCKey) -> GPSCValue? {
+    func readValue(forKey key: GPSKKey) -> GPSKValue? {
         guard let entry = wrapped.object(forKey: GPWrappedKey(key)) else {
             return nil
         }
@@ -62,14 +62,14 @@ public final class GPSCCacheController<GPSCKey: Hashable, GPSCValue>: NSObject, 
         return entry.value
     }
 
-    func storeValue(_ value: GPSCValue, forKey key: GPSCKey, entryLifetime: TimeInterval) {
+    func storeValue(_ value: GPSKValue, forKey key: GPSKKey, entryLifetime: TimeInterval) {
         let expirationDate = Date(timeIntervalSinceNow: entryLifetime)
         let entry = GPEntry(key: key, value: value, expirationDate: expirationDate)
         wrapped.setObject(entry, forKey: GPWrappedKey(key))
         keyTracker.keys.insert(key)
     }
 
-    func removeValue(forKey key: GPSCKey) {
+    func removeValue(forKey key: GPSKKey) {
         wrapped.removeObject(forKey: GPWrappedKey(key))
     }
 
@@ -84,11 +84,11 @@ public final class GPSCCacheController<GPSCKey: Hashable, GPSCValue>: NSObject, 
     }
 }
 
-private extension GPSCCacheController {
+private extension GPSKCacheController {
     final class GPWrappedKey: NSObject {
-        let key: GPSCKey
+        let key: GPSKKey
 
-        init(_ key: GPSCKey) { self.key = key }
+        init(_ key: GPSKKey) { self.key = key }
 
         override var hash: Int { key.hashValue }
 
@@ -102,13 +102,13 @@ private extension GPSCCacheController {
     }
 }
 
-private extension GPSCCacheController {
+private extension GPSKCacheController {
     final class GPEntry {
-        let key: GPSCKey
-        let value: GPSCValue
+        let key: GPSKKey
+        let value: GPSKValue
         let expirationDate: Date
 
-        init(key: GPSCKey, value: GPSCValue, expirationDate: Date) {
+        init(key: GPSKKey, value: GPSKValue, expirationDate: Date) {
             self.key = key
             self.value = value
             self.expirationDate = expirationDate
@@ -116,14 +116,14 @@ private extension GPSCCacheController {
     }
 }
 
-private extension GPSCCacheController {
-    final class GPSCKeyTracker: NSObject, NSCacheDelegate {
-        var keys = Set<GPSCKey>()
+private extension GPSKCacheController {
+    final class GPSKKeyTracker: NSObject, NSCacheDelegate {
+        var keys = Set<GPSKKey>()
     }
 }
 
-private extension GPSCCacheController {
-    func entry(forKey key: GPSCKey) -> GPEntry? {
+private extension GPSKCacheController {
+    func entry(forKey key: GPSKKey) -> GPEntry? {
         guard let entry = wrapped.object(forKey: GPWrappedKey(key)) else {
             return nil
         }
@@ -142,9 +142,9 @@ private extension GPSCCacheController {
     }
 }
 
-extension GPSCCacheController.GPEntry: Codable where GPSCKey: Codable, GPSCValue: Codable {}
+extension GPSKCacheController.GPEntry: Codable where GPSKKey: Codable, GPSKValue: Codable {}
 
-extension GPSCCacheController: Codable where GPSCKey: Codable, GPSCValue: Codable {
+extension GPSKCacheController: Codable where GPSKKey: Codable, GPSKValue: Codable {
     public convenience init(from decoder: Decoder) throws {
         self.init()
 
@@ -163,7 +163,7 @@ extension GPSCCacheController: Codable where GPSCKey: Codable, GPSCValue: Codabl
     }
 }
 
-extension GPSCCacheController where GPSCKey: Codable, GPSCValue: Codable {
+extension GPSKCacheController where GPSKKey: Codable, GPSKValue: Codable {
     func saveCacheOnDisk() throws {
         let rootFolderURL = try fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
         let cacheFolderURL = rootFolderURL.appendingPathComponent(name.capitalized)

@@ -26,9 +26,9 @@ import Foundation
 /// Reference:
 /// https://developer.apple.com/documentation/cryptokit/storing_cryptokit_keys_in_the_keychain
 
-extension P256.Signing.PrivateKey: GPSCSecKeyConvertible {}
-extension P256.KeyAgreement.PrivateKey: GPSCSecKeyConvertible {}
-extension P384.Signing.PrivateKey: GPSCSecKeyConvertible {}
-extension P384.KeyAgreement.PrivateKey: GPSCSecKeyConvertible {}
-extension P521.Signing.PrivateKey: GPSCSecKeyConvertible {}
-extension P521.KeyAgreement.PrivateKey: GPSCSecKeyConvertible {}
+extension P256.Signing.PrivateKey: GPSKKeychainSecKeyConvertible {}
+extension P256.KeyAgreement.PrivateKey: GPSKKeychainSecKeyConvertible {}
+extension P384.Signing.PrivateKey: GPSKKeychainSecKeyConvertible {}
+extension P384.KeyAgreement.PrivateKey: GPSKKeychainSecKeyConvertible {}
+extension P521.Signing.PrivateKey: GPSKKeychainSecKeyConvertible {}
+extension P521.KeyAgreement.PrivateKey: GPSKKeychainSecKeyConvertible {}

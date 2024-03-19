@@ -29,18 +29,18 @@ import Foundation
 // TODO: OSKSecKeyConvertible should include query parameters (to read)
 // TODO: OSKSecKeyConvertible should include convertion to SecKey (to write)
 
-public final class GPSCKeychainSecKeyService {
-    public static let shared = GPSCKeychainSecKeyService()
+public final class GPSKKeychainSecKeyService {
+    public static let shared = GPSKKeychainSecKeyService()
 
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSCKeychainSecKeyValues>, Never>()
+    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKKeychainSecKeyValues>, Never>()
 
-    private let keychainSecKeyValues: GPSCKeychainSecKeyValues
+    private let keychainSecKeyValues: GPSKKeychainSecKeyValues
 
-    init(keychainSecKeyValues: GPSCKeychainSecKeyValues = .default) {
+    init(keychainSecKeyValues: GPSKKeychainSecKeyValues = .default) {
         self.keychainSecKeyValues = keychainSecKeyValues
     }
 
-    subscript<GPSCValue>(_ keyPath: ReferenceWritableKeyPath<GPSCKeychainSecKeyValues, GPSCValue>) -> GPSCValue {
+    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>) -> GPSKValue {
         get { keychainSecKeyValues[keyPath: keyPath] }
         set {
             keychainSecKeyValues[keyPath: keyPath] = newValue

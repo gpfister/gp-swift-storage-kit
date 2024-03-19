@@ -22,6 +22,6 @@
 
 import Foundation
 
-public protocol GPSCOptionalValue {
-    var gpIsNil: Bool { get }
+public protocol GPSKOptionalValue {
+    var gskIsNil: Bool { get }
 }

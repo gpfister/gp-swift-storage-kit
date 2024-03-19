@@ -39,7 +39,7 @@ import SwiftUI
 /// //
 /// extension EnvironmentValues {
 ///     struct OSKTestUserDefaultKey: EnvironmentKey {
-///         static var defaultValue = OSKTestUserDefaults()
+///         static var defaultValue = OSKTestUserDefaultKey()
 ///     }
 ///
 ///     var userDefaults: OSKTestUserDefaults {
@@ -50,8 +50,8 @@ import SwiftUI
 ///
 /// // Define user default key
 /// //
-/// extension GPSCUserDefaultValues {
-///     struct GPCounterKey: GPSCUserDefaultKey {
+/// extension GPSKUserDefaultValues {
+///     struct GPCounterKey: GPSKUserDefaultKey {
 ///         static let key = "counter"
 ///         static let defaultValue: Int = 0
 ///     }
@@ -75,14 +75,14 @@ import SwiftUI
 ///             OSKTestView()
 ///             Spacer()
 ///         }
-///         .environmentObject(userDefaults)
+///         .environment(\.userDefaults, userDefaults)
 ///     }
 /// }
 ///
 /// // This view uses its own view model, which will access the user defaults
 /// //
 /// struct OSKTestView: View {
-///     @Environment private var viewModel = OSKTestViewModel()
+///     @StateObject private var viewModel = OSKTestViewModel()
 ///
 ///     var body: some View {
 ///         VStack {
@@ -122,7 +122,7 @@ import SwiftUI
 /// }
 ///
 /// class OSKTestUserDefaults: ObservableObject {
-///     @GPSCPublishedUserDefault(\.counter) var counter
+///     @GPSKPublishedUserDefault(\.counter) var counter
 ///
 ///     private var cancellables = Set<AnyCancellable>()
 ///
@@ -140,24 +140,25 @@ import SwiftUI
 ///     }
 /// }
 /// ```
-@propertyWrapper public class GPSCPublishedUserDefault<GPSCValue: Equatable> {
-    private let keyPath: ReferenceWritableKeyPath<GPSCUserDefaultValues, GPSCValue>
-    private let userDefaultsService = GPSCUserDefaultsService.shared
-    private let subject: CurrentValueSubject<GPSCValue, Never>
-    private let publisher: AnyPublisher<GPSCValue, Never>
+///
+@propertyWrapper public class GPSKPublishedKeychainSecKey<GPSKValue> {
+    private let keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>
+    private let keychainSecKeyService = GPSKKeychainSecKeyService.shared
+    let subject: CurrentValueSubject<GPSKValue, Never>
+    let publisher: AnyPublisher<GPSKValue, Never>
     private var cancellables = Set<AnyCancellable>()
 
-    public init(_ keyPath: ReferenceWritableKeyPath<GPSCUserDefaultValues, GPSCValue>) {
+    public init(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>) {
         self.keyPath = keyPath
-        subject = .init(userDefaultsService[keyPath])
+        subject = .init(keychainSecKeyService[keyPath])
         publisher = subject.eraseToAnyPublisher()
-        userDefaultsService.valueChangedSubject
+        keychainSecKeyService.valueChangedSubject
             .filter { akeyPath in
                 akeyPath == keyPath
             }
             .eraseToAnyPublisher()
             .sink { _ in
-                self.subject.send(self.userDefaultsService[keyPath])
+                self.subject.send(self.keychainSecKeyService[keyPath])
             }
             .store(in: &cancellables)
     }
@@ -168,17 +169,21 @@ import SwiftUI
         }
     }
 
+    public func update() {
+        subject.send(keychainSecKeyService[keyPath])
+    }
+
     @available(*, unavailable, message: "Wrapped value should not be used.")
-    public var wrappedValue: GPSCValue {
-        get { fatalError("Wrapped value should not be used.") }
-        set { fatalError("Wrapped value should not be used.") }
+    public var wrappedValue: GPSKValue {
+        get { fatalError() }
+        set { fatalError() }
     }
 
     public static subscript<GPEnclosingType: ObservableObject>(
         _enclosingInstance instance: GPEnclosingType,
-        wrapped _: ReferenceWritableKeyPath<GPEnclosingType, GPSCValue>,
-        storage storageKeyPath: ReferenceWritableKeyPath<GPEnclosingType, GPSCPublishedUserDefault>
-    ) -> GPSCValue {
+        wrapped _: ReferenceWritableKeyPath<GPEnclosingType, GPSKValue>,
+        storage storageKeyPath: ReferenceWritableKeyPath<GPEnclosingType, GPSKPublishedKeychainSecKey>
+    ) -> GPSKValue {
         get {
             instance[keyPath: storageKeyPath].subject.value
         }
@@ -187,9 +192,9 @@ import SwiftUI
                 (instance.objectWillChange as! ObservableObjectPublisher).send()
             }
             instance[keyPath: storageKeyPath].subject.send(newValue)
-            instance[keyPath: storageKeyPath].userDefaultsService[instance[keyPath: storageKeyPath].keyPath] = newValue
+            instance[keyPath: storageKeyPath].keychainSecKeyService[instance[keyPath: storageKeyPath].keyPath] = newValue
         }
     }
 
-    public var projectedValue: AnyPublisher<GPSCValue, Never> { publisher }
+    public var projectedValue: AnyPublisher<GPSKValue, Never> { publisher }
 }

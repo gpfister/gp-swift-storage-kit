@@ -27,17 +27,17 @@ import SwiftUI
 ///   - https://www.avanderlee.com/swift/appstorage-explained/
 ///   - https://www.hackingwithswift.com/quick-start/swiftui/observable-objects-environment-objects-and-published
 
-@propertyWrapper public struct GPSCMemoryCacheEntry<GPSCValue>: DynamicProperty {
-    @ObservedObject private var observer: GPObservableObject
+@propertyWrapper public struct GPSKPersistentCacheEntry<GPSKValue>: DynamicProperty {
+    @ObservedObject private var observer: GPSKObservableObject
 
-    private let keyPath: ReferenceWritableKeyPath<GPSCMemoryCacheValues, GPSCValue>
-    private let memoryCacheService = GPSCMemoryCacheService.shared
-    private let subject: CurrentValueSubject<GPSCValue, Never>
+    private let keyPath: ReferenceWritableKeyPath<GPSKPersistentCacheValues, GPSKValue>
+    private let persistentCacheService = GPSKPersistentCacheService.shared
+    private let subject: CurrentValueSubject<GPSKValue, Never>
 
-    public init(_ keyPath: ReferenceWritableKeyPath<GPSCMemoryCacheValues, GPSCValue>) {
+    public init(_ keyPath: ReferenceWritableKeyPath<GPSKPersistentCacheValues, GPSKValue>) {
         self.keyPath = keyPath
-        subject = .init(memoryCacheService[keyPath])
-        let publisher = memoryCacheService.valueChangedSubject
+        subject = .init(persistentCacheService[keyPath])
+        let publisher = persistentCacheService.valueChangedSubject
             .filter { aKeyPath in
                 aKeyPath == keyPath
             }
@@ -47,19 +47,19 @@ import SwiftUI
     }
 
     public func update() {
-        subject.send(memoryCacheService[keyPath])
+        subject.send(persistentCacheService[keyPath])
     }
 
-    public var wrappedValue: GPSCValue {
+    public var wrappedValue: GPSKValue {
         get {
             subject.value
         }
         nonmutating set {
-            memoryCacheService[keyPath] = newValue
+            persistentCacheService[keyPath] = newValue
         }
     }
 
-    public var projectedValue: Binding<GPSCValue> {
+    public var projectedValue: Binding<GPSKValue> {
         Binding(
             get: { subject.value },
             set: { wrappedValue = $0 }
@@ -69,8 +69,8 @@ import SwiftUI
 
 // MARK: - Private
 
-private extension GPSCMemoryCacheEntry {
-    final class GPObservableObject: ObservableObject {
+private extension GPSKPersistentCacheEntry {
+    final class GPSKObservableObject: ObservableObject {
         var subscriber: AnyCancellable?
 
         init(publisher: AnyPublisher<Void, Never>) {

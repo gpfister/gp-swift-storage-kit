@@ -23,10 +23,11 @@
 import Combine
 import Foundation
 
-public protocol GPSCKeychainSecKeyKey {
-    associatedtype GPSCValue: GPSCSecKeyConvertible
+public protocol GPSKMemoryCacheKey {
+    associatedtype GPSKValue: Equatable
 
     static var key: String { get }
-    static var defaultValue: Self.GPSCValue? { get }
+    static var defaultValue: Self.GPSKValue { get }
+    static var entryLifetime: TimeInterval { get }
     static var isLinkedToUserId: Bool { get }
 }

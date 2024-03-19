@@ -23,10 +23,40 @@
 import Combine
 import Foundation
 
-public protocol GPSCUserDefaultCodableKey {
-    associatedtype GPSCValue: Equatable, Codable
+/// References: https://www.avanderlee.com/swift/appstorage-explained/
 
-    static var key: String { get }
-    static var defaultValue: Self.GPSCValue { get }
-    static var isLinkedToUserId: Bool { get }
+public class GPSKUserDefaultsService {
+    public static var shared: GPSKUserDefaultsService {
+        if let _instance { return _instance }
+        else {
+            _instance = .init()
+            return _instance!
+        }
+    }
+
+    private static var _instance: GPSKUserDefaultsService?
+
+    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKUserDefaultValues>, Never>()
+
+    private let userDefaultValues: GPSKUserDefaultValues
+
+    init(userDefaultValues: GPSKUserDefaultValues = .default) {
+        self.userDefaultValues = userDefaultValues
+    }
+
+    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKUserDefaultValues, GPSKValue>) -> GPSKValue {
+        get { userDefaultValues[keyPath: keyPath] }
+        set {
+            userDefaultValues[keyPath: keyPath] = newValue
+            valueChangedSubject.send(keyPath)
+        }
+    }
+
+    func resetAllData() {
+        userDefaultValues.resetAllData()
+    }
+
+    func resetUserData() {
+        userDefaultValues.resetUserData()
+    }
 }

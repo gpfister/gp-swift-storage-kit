@@ -23,24 +23,10 @@
 import Combine
 import Foundation
 
-/// References: https://www.avanderlee.com/swift/appstorage-explained/
+public protocol GPSKUserDefaultCodableKey {
+    associatedtype GPSKValue: Equatable, Codable
 
-class GPSCMemoryCacheService {
-    static let shared = GPSCMemoryCacheService()
-
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSCMemoryCacheValues>, Never>()
-
-    private let memoryCacheValues: GPSCMemoryCacheValues
-
-    init(memoryCacheValues: GPSCMemoryCacheValues = .default) {
-        self.memoryCacheValues = memoryCacheValues
-    }
-
-    subscript<GPSCValue>(_ keyPath: ReferenceWritableKeyPath<GPSCMemoryCacheValues, GPSCValue>) -> GPSCValue {
-        get { memoryCacheValues[keyPath: keyPath] }
-        set {
-            memoryCacheValues[keyPath: keyPath] = newValue
-            valueChangedSubject.send(keyPath)
-        }
-    }
+    static var key: String { get }
+    static var defaultValue: Self.GPSKValue { get }
+    static var isLinkedToUserId: Bool { get }
 }
