@@ -20,14 +20,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-@testable import GPStorageKit
-import XCTest
+import CryptoKit
+import Foundation
 
-final class GPStorageKitTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        // XCTAssertEqual(GPStorageKit().text, "Hello, World!")
-    }
-}
+/// Reference: 
+/// https://developer.apple.com/documentation/cryptokit/storing_cryptokit_keys_in_the_keychain
+
+extension P256.Signing.PrivateKey: GPSCSecKeyConvertible {}
+extension P256.KeyAgreement.PrivateKey: GPSCSecKeyConvertible {}
+extension P384.Signing.PrivateKey: GPSCSecKeyConvertible {}
+extension P384.KeyAgreement.PrivateKey: GPSCSecKeyConvertible {}
+extension P521.Signing.PrivateKey: GPSCSecKeyConvertible {}
+extension P521.KeyAgreement.PrivateKey: GPSCSecKeyConvertible {}
