@@ -20,14 +20,14 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-@testable import GPStorageKit
-import XCTest
+import Combine
+import Foundation
 
-final class GPStorageKitTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        // XCTAssertEqual(GPStorageKit().text, "Hello, World!")
-    }
+public protocol GPSCPersistentCacheKey {
+    associatedtype GPSCValue: Equatable, Codable
+
+    static var key: String { get }
+    static var defaultValue: Self.GPSCValue { get }
+    static var entryLifetime: TimeInterval { get }
+    static var isLinkedToUserId: Bool { get }
 }

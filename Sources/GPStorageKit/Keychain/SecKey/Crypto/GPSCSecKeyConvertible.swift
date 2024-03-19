@@ -20,14 +20,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-@testable import GPStorageKit
-import XCTest
+import CryptoKit
+import Foundation
 
-final class GPStorageKitTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        // XCTAssertEqual(GPStorageKit().text, "Hello, World!")
-    }
+/**
+ * Extension to allow to save private key as SecKey object is KeyChain store
+ * Reference: https://developer.apple.com/documentation/cryptokit/storing_cryptokit_keys_in_the_keychain
+ */
+
+public protocol GPSCSecKeyConvertible /*: CustomStringConvertible */ {
+    init(x963Representation: some ContiguousBytes) throws
+    var x963Representation: Data { get }
 }

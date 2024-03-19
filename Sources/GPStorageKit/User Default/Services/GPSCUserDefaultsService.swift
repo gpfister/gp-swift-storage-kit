@@ -20,14 +20,43 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-@testable import GPStorageKit
-import XCTest
+import Combine
+import Foundation
 
-final class GPStorageKitTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        // XCTAssertEqual(GPStorageKit().text, "Hello, World!")
+/// References: https://www.avanderlee.com/swift/appstorage-explained/
+
+public class GPSCUserDefaultsService {
+    public static var shared: GPSCUserDefaultsService {
+        if let _instance { return _instance }
+        else {
+            _instance = .init()
+            return _instance!
+        }
+    }
+
+    private static var _instance: GPSCUserDefaultsService?
+
+    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSCUserDefaultValues>, Never>()
+
+    private let userDefaultValues: GPSCUserDefaultValues
+
+    init(userDefaultValues: GPSCUserDefaultValues = .default) {
+        self.userDefaultValues = userDefaultValues
+    }
+
+    subscript<GPSCValue>(_ keyPath: ReferenceWritableKeyPath<GPSCUserDefaultValues, GPSCValue>) -> GPSCValue {
+        get { userDefaultValues[keyPath: keyPath] }
+        set {
+            userDefaultValues[keyPath: keyPath] = newValue
+            valueChangedSubject.send(keyPath)
+        }
+    }
+
+    func resetAllData() {
+        userDefaultValues.resetAllData()
+    }
+
+    func resetUserData() {
+        userDefaultValues.resetUserData()
     }
 }

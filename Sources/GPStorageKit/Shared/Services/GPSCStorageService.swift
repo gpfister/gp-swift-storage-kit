@@ -20,14 +20,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-@testable import GPStorageKit
-import XCTest
+import Foundation
 
-final class GPStorageKitTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        // XCTAssertEqual(GPStorageKit().text, "Hello, World!")
+public class GPSCStorageService {
+    public static var shared: GPSCStorageService {
+        if let _instance { return _instance }
+        else {
+            _instance = GPSCStorageService()
+            return _instance!
+        }
+    }
+
+    private static var _instance: GPSCStorageService?
+
+    public var userId: String?
+
+    private init() {}
+
+    public func resetAllData() {
+        GPSCUserDefaultsService.shared.resetAllData()
+    }
+
+    public func resetUserData() {
+        GPSCUserDefaultsService.shared.resetUserData()
     }
 }

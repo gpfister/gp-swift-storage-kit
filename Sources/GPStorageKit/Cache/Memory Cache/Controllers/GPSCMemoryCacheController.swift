@@ -20,14 +20,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-@testable import GPStorageKit
-import XCTest
+import Combine
+import Foundation
 
-final class GPStorageKitTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        // XCTAssertEqual(GPStorageKit().text, "Hello, World!")
+public final class GPSCMemoryCacheController {
+    public static let shared = GPSCMemoryCacheController()
+
+    let cache: GPSCCacheController<String, Any>
+
+    init(name: String = "data", maximumEntryCount: Int = 1024) {
+        cache = .init(name: name, maximumEntryCount: maximumEntryCount)
+    }
+
+    func value(forKey key: String) -> Any? {
+        cache.readValue(forKey: key)
+    }
+
+    func set(_ value: Any, forKey key: String, entryLifetime: TimeInterval) {
+        cache.storeValue(value, forKey: key, entryLifetime: entryLifetime)
+    }
+
+    func removeValue(forKey key: String) {
+        cache.removeValue(forKey: key)
     }
 }

@@ -20,14 +20,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-@testable import GPStorageKit
-import XCTest
+import Combine
+import Foundation
 
-final class GPStorageKitTests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        // XCTAssertEqual(GPStorageKit().text, "Hello, World!")
+/// References: https://www.avanderlee.com/swift/appstorage-explained/
+
+class GPSCPersistentCacheService {
+    static let shared = GPSCPersistentCacheService()
+
+    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSCPersistentCacheValues>, Never>()
+
+    private let persistentCacheValues: GPSCPersistentCacheValues
+
+    init(persistentCacheValues: GPSCPersistentCacheValues = .default) {
+        self.persistentCacheValues = persistentCacheValues
+    }
+
+    subscript<GPSCValue>(_ keyPath: ReferenceWritableKeyPath<GPSCPersistentCacheValues, GPSCValue>) -> GPSCValue {
+        get { persistentCacheValues[keyPath: keyPath] }
+        set {
+            persistentCacheValues[keyPath: keyPath] = newValue
+            valueChangedSubject.send(keyPath)
+        }
     }
 }
