@@ -23,7 +23,7 @@
 import CryptoKit
 import Foundation
 
-/// Reference: 
+/// Reference:
 /// https://developer.apple.com/documentation/cryptokit/storing_cryptokit_keys_in_the_keychain
 
 extension P256.Signing.PrivateKey: GPSCSecKeyConvertible {}
