@@ -20,31 +20,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Combine
-import CryptoKit
 import Foundation
 
-/// References: https://www.avanderlee.com/swift/appstorage-explained/
-
-// TODO: OSKSecKeyConvertible should include query parameters (to read)
-// TODO: OSKSecKeyConvertible should include convertion to SecKey (to write)
-
-public final class GPSKKeychainSecKeyService {
-    public static let shared = GPSKKeychainSecKeyService()
-
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKKeychainSecKeyValues>, Never>()
-
-    private let keychainSecKeyValues: GPSKKeychainSecKeyValues
-
-    init(keychainSecKeyValues: GPSKKeychainSecKeyValues = .default) {
-        self.keychainSecKeyValues = keychainSecKeyValues
-    }
-
-    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>) -> GPSKValue {
-        get { keychainSecKeyValues[keyPath: keyPath] }
-        set {
-            keychainSecKeyValues[keyPath: keyPath] = newValue
-            valueChangedSubject.send(keyPath)
-        }
+extension Optional: GPSKOptionalValue {
+    public var gskIsNil: Bool {
+        self == nil
     }
 }

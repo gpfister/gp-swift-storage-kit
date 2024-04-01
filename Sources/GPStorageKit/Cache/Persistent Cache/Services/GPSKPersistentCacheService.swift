@@ -21,29 +21,25 @@
 //
 
 import Combine
-import CryptoKit
 import Foundation
 
 /// References: https://www.avanderlee.com/swift/appstorage-explained/
 
-// TODO: OSKSecKeyConvertible should include query parameters (to read)
-// TODO: OSKSecKeyConvertible should include convertion to SecKey (to write)
+class GPSKPersistentCacheService {
+    static let shared = GPSKPersistentCacheService()
 
-public final class GPSKKeychainSecKeyService {
-    public static let shared = GPSKKeychainSecKeyService()
+    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKPersistentCacheValues>, Never>()
 
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKKeychainSecKeyValues>, Never>()
+    private let persistentCacheValues: GPSKPersistentCacheValues
 
-    private let keychainSecKeyValues: GPSKKeychainSecKeyValues
-
-    init(keychainSecKeyValues: GPSKKeychainSecKeyValues = .default) {
-        self.keychainSecKeyValues = keychainSecKeyValues
+    init(persistentCacheValues: GPSKPersistentCacheValues = .default) {
+        self.persistentCacheValues = persistentCacheValues
     }
 
-    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>) -> GPSKValue {
-        get { keychainSecKeyValues[keyPath: keyPath] }
+    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKPersistentCacheValues, GPSKValue>) -> GPSKValue {
+        get { persistentCacheValues[keyPath: keyPath] }
         set {
-            keychainSecKeyValues[keyPath: keyPath] = newValue
+            persistentCacheValues[keyPath: keyPath] = newValue
             valueChangedSubject.send(keyPath)
         }
     }

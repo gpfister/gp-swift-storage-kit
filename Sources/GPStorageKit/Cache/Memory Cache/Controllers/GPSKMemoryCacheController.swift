@@ -21,30 +21,26 @@
 //
 
 import Combine
-import CryptoKit
 import Foundation
 
-/// References: https://www.avanderlee.com/swift/appstorage-explained/
+public final class GPSKMemoryCacheController {
+    public static let shared = GPSKMemoryCacheController()
 
-// TODO: OSKSecKeyConvertible should include query parameters (to read)
-// TODO: OSKSecKeyConvertible should include convertion to SecKey (to write)
+    let cache: GPSKCacheController<String, Any>
 
-public final class GPSKKeychainSecKeyService {
-    public static let shared = GPSKKeychainSecKeyService()
-
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKKeychainSecKeyValues>, Never>()
-
-    private let keychainSecKeyValues: GPSKKeychainSecKeyValues
-
-    init(keychainSecKeyValues: GPSKKeychainSecKeyValues = .default) {
-        self.keychainSecKeyValues = keychainSecKeyValues
+    init(name: String = "data", maximumEntryCount: Int = 1024) {
+        cache = .init(name: name, maximumEntryCount: maximumEntryCount)
     }
 
-    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>) -> GPSKValue {
-        get { keychainSecKeyValues[keyPath: keyPath] }
-        set {
-            keychainSecKeyValues[keyPath: keyPath] = newValue
-            valueChangedSubject.send(keyPath)
-        }
+    func value(forKey key: String) -> Any? {
+        cache.readValue(forKey: key)
+    }
+
+    func set(_ value: Any, forKey key: String, entryLifetime: TimeInterval) {
+        cache.storeValue(value, forKey: key, entryLifetime: entryLifetime)
+    }
+
+    func removeValue(forKey key: String) {
+        cache.removeValue(forKey: key)
     }
 }

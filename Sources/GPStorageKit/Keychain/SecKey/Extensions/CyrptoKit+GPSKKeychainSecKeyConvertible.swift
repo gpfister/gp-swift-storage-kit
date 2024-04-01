@@ -20,31 +20,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Combine
 import CryptoKit
 import Foundation
 
-/// References: https://www.avanderlee.com/swift/appstorage-explained/
+/// Reference:
+/// https://developer.apple.com/documentation/cryptokit/storing_cryptokit_keys_in_the_keychain
 
-// TODO: OSKSecKeyConvertible should include query parameters (to read)
-// TODO: OSKSecKeyConvertible should include convertion to SecKey (to write)
-
-public final class GPSKKeychainSecKeyService {
-    public static let shared = GPSKKeychainSecKeyService()
-
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKKeychainSecKeyValues>, Never>()
-
-    private let keychainSecKeyValues: GPSKKeychainSecKeyValues
-
-    init(keychainSecKeyValues: GPSKKeychainSecKeyValues = .default) {
-        self.keychainSecKeyValues = keychainSecKeyValues
-    }
-
-    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>) -> GPSKValue {
-        get { keychainSecKeyValues[keyPath: keyPath] }
-        set {
-            keychainSecKeyValues[keyPath: keyPath] = newValue
-            valueChangedSubject.send(keyPath)
-        }
-    }
-}
+extension P256.Signing.PrivateKey: GPSKKeychainSecKeyConvertible {}
+extension P256.KeyAgreement.PrivateKey: GPSKKeychainSecKeyConvertible {}
+extension P384.Signing.PrivateKey: GPSKKeychainSecKeyConvertible {}
+extension P384.KeyAgreement.PrivateKey: GPSKKeychainSecKeyConvertible {}
+extension P521.Signing.PrivateKey: GPSKKeychainSecKeyConvertible {}
+extension P521.KeyAgreement.PrivateKey: GPSKKeychainSecKeyConvertible {}

@@ -21,30 +21,13 @@
 //
 
 import Combine
-import CryptoKit
 import Foundation
 
-/// References: https://www.avanderlee.com/swift/appstorage-explained/
+public protocol GPSKPersistentCacheKey {
+    associatedtype GPSKValue: Equatable, Codable
 
-// TODO: OSKSecKeyConvertible should include query parameters (to read)
-// TODO: OSKSecKeyConvertible should include convertion to SecKey (to write)
-
-public final class GPSKKeychainSecKeyService {
-    public static let shared = GPSKKeychainSecKeyService()
-
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKKeychainSecKeyValues>, Never>()
-
-    private let keychainSecKeyValues: GPSKKeychainSecKeyValues
-
-    init(keychainSecKeyValues: GPSKKeychainSecKeyValues = .default) {
-        self.keychainSecKeyValues = keychainSecKeyValues
-    }
-
-    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>) -> GPSKValue {
-        get { keychainSecKeyValues[keyPath: keyPath] }
-        set {
-            keychainSecKeyValues[keyPath: keyPath] = newValue
-            valueChangedSubject.send(keyPath)
-        }
-    }
+    static var key: String { get }
+    static var defaultValue: Self.GPSKValue { get }
+    static var entryLifetime: TimeInterval { get }
+    static var isLinkedToUserId: Bool { get }
 }

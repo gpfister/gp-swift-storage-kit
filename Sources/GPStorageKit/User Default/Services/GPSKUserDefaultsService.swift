@@ -21,30 +21,42 @@
 //
 
 import Combine
-import CryptoKit
 import Foundation
 
 /// References: https://www.avanderlee.com/swift/appstorage-explained/
 
-// TODO: OSKSecKeyConvertible should include query parameters (to read)
-// TODO: OSKSecKeyConvertible should include convertion to SecKey (to write)
-
-public final class GPSKKeychainSecKeyService {
-    public static let shared = GPSKKeychainSecKeyService()
-
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKKeychainSecKeyValues>, Never>()
-
-    private let keychainSecKeyValues: GPSKKeychainSecKeyValues
-
-    init(keychainSecKeyValues: GPSKKeychainSecKeyValues = .default) {
-        self.keychainSecKeyValues = keychainSecKeyValues
+public class GPSKUserDefaultsService {
+    public static var shared: GPSKUserDefaultsService {
+        if let _instance { return _instance }
+        else {
+            _instance = .init()
+            return _instance!
+        }
     }
 
-    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>) -> GPSKValue {
-        get { keychainSecKeyValues[keyPath: keyPath] }
+    private static var _instance: GPSKUserDefaultsService?
+
+    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKUserDefaultValues>, Never>()
+
+    private let userDefaultValues: GPSKUserDefaultValues
+
+    init(userDefaultValues: GPSKUserDefaultValues = .default) {
+        self.userDefaultValues = userDefaultValues
+    }
+
+    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKUserDefaultValues, GPSKValue>) -> GPSKValue {
+        get { userDefaultValues[keyPath: keyPath] }
         set {
-            keychainSecKeyValues[keyPath: keyPath] = newValue
+            userDefaultValues[keyPath: keyPath] = newValue
             valueChangedSubject.send(keyPath)
         }
+    }
+
+    func resetAllData() {
+        userDefaultValues.resetAllData()
+    }
+
+    func resetUserData() {
+        userDefaultValues.resetUserData()
     }
 }

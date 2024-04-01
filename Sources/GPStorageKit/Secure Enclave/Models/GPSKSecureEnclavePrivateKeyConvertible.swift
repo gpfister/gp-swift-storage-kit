@@ -20,31 +20,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-import Combine
 import CryptoKit
 import Foundation
+import LocalAuthentication
 
-/// References: https://www.avanderlee.com/swift/appstorage-explained/
+/// This protocol is required for Secure Enclave compatible keys, as this are
+/// the basics to export the data representation (which is not the key it self,
+/// but a piece of data that allow for the key restoration on the secure
+/// enclave. This data representation can be saved on keychain.
 
-// TODO: OSKSecKeyConvertible should include query parameters (to read)
-// TODO: OSKSecKeyConvertible should include convertion to SecKey (to write)
+public protocol GPSKSecureEnclavePrivateKeyConvertible {
+    init(dataRepresentation: Data, authenticationContext: LAContext?) throws
+    var dataRepresentation: Data { get }
+}
 
-public final class GPSKKeychainSecKeyService {
-    public static let shared = GPSKKeychainSecKeyService()
-
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKKeychainSecKeyValues>, Never>()
-
-    private let keychainSecKeyValues: GPSKKeychainSecKeyValues
-
-    init(keychainSecKeyValues: GPSKKeychainSecKeyValues = .default) {
-        self.keychainSecKeyValues = keychainSecKeyValues
-    }
-
-    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainSecKeyValues, GPSKValue>) -> GPSKValue {
-        get { keychainSecKeyValues[keyPath: keyPath] }
-        set {
-            keychainSecKeyValues[keyPath: keyPath] = newValue
-            valueChangedSubject.send(keyPath)
-        }
+extension GPSKSecureEnclavePrivateKeyConvertible {
+    init(dataRepresentation: Data) throws {
+        try self.init(dataRepresentation: dataRepresentation, authenticationContext: nil)
     }
 }
