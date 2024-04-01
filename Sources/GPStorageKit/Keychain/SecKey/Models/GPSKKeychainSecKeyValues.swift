@@ -42,14 +42,18 @@ public class GPSKKeychainSecKeyValues {
             guard (keychainSecKeyKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !keychainSecKeyKey.isLinkedToUserId
             else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
             let key = keychainSecKeyKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(keychainSecKeyKey.key)" : keychainSecKeyKey.key
-            let secKey: GPSKKey.GPSKValue? = try? readSecKey(forKey: key)
+            let secKey: GPSKKey.GPSKValue? = try? read(forKey: key)
             return secKey ?? keychainSecKeyKey.defaultValue
         }
         set {
             guard (keychainSecKeyKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !keychainSecKeyKey.isLinkedToUserId
             else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
             let key = keychainSecKeyKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(keychainSecKeyKey.key)" : keychainSecKeyKey.key
-            try? storeSecKey(newValue, forKey: key)
+            if let newValue {
+                try? store(newValue, forKey: key)
+            } else {
+                try? delete(forKey: key)
+            }
         }
     }
 }
@@ -57,74 +61,67 @@ public class GPSKKeychainSecKeyValues {
 // MARK: - Private
 
 private extension GPSKKeychainSecKeyValues {
-    func readSecKey<T: GPSKKeychainSecKeyConvertible>(forKey key: String) throws -> T? {
-        // Get the SecKey object
-        let secKey = try internalReadSecKey(forKey: key)
-
+    func read<T: GPSKKeychainSecKeyConvertible>(forKey key: String) throws -> T? {
         // Stop here if no key was found
-        guard let secKey else {
+        guard let secKey: SecKey = try readSecKey(forKey: key) else {
             return nil
         }
 
         // Convert the SecKey into a CryptoKit key.
         var error: Unmanaged<CFError>?
         guard let data = SecKeyCopyExternalRepresentation(secKey, &error) as Data? else {
-            throw GPSKKeychainError.unableToParseSecKeyRepresentation(error.debugDescription)
+            throw GPSKKeychainError.unableToParseKeyRepresentation(error: (error!.takeRetainedValue()) as Error)
         }
         do {
             let key = try T(x963Representation: data)
             return key
         } catch {
-            throw GPSKKeychainError.unableToParseSecKeyRepresentation(error.localizedDescription)
+            throw GPSKKeychainError.unableToParseKeyRepresentation(error: error)
         }
     }
 
-    func internalReadSecKey(forKey key: String) throws -> SecKey? {
-        // Seek an elliptic-curve key with a given label.
+    func store(_ secKey: (some GPSKKeychainSecKeyConvertible), forKey key: String) throws {
+        if (try? readSecKey(forKey: key)) != nil {
+            try delete(forKey: key)
+        }
+        
+        // Describe the key
+        let attributes = [kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+                         kSecAttrKeyClass: kSecAttrKeyClassPrivate] as [String: Any]
+        
+        // Get a SecKey representation.
+        var error: Unmanaged<CFError>?
+        guard let secKey = SecKeyCreateWithData(secKey.x963Representation as CFData,
+                                                attributes as CFDictionary,
+                                                &error)
+        else {
+            throw GPSKKeychainError.unableToCreateKeyRepresentation(error: (error!.takeRetainedValue()) as Error)
+        }
+        
+        try storeSecKey(secKey, forKey: key)
+    }
+    
+    func readSecKey(forKey key: String) throws -> SecKey? {
         let query = [kSecClass: kSecClassKey,
-                     kSecAttrApplicationLabel: "\(domain).\(key)",
-                     kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-                     kSecUseDataProtectionKeychain: true,
-                     kSecReturnRef: true] as [String: Any]
-
+      kSecAttrApplicationLabel: "\(domain).\(key)",
+               kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+ kSecUseDataProtectionKeychain: true,
+                 kSecReturnRef: true] as [String: Any]
+        
         // Find and cast the result as a SecKey instance.
         var item: CFTypeRef?
         var secKey: SecKey
+        
         switch SecItemCopyMatching(query as CFDictionary, &item) {
-            case errSecSuccess: secKey = item as! SecKey
-            case errSecItemNotFound: return nil
-            case let status: throw GPSKKeychainError.unableToRead(status.message)
+        case errSecSuccess: secKey = item as! SecKey
+        case errSecItemNotFound: return nil
+        case let status: throw GPSKKeychainError.unableToRead(message: status.message)
         }
-
+        
         return secKey
     }
 
-    func storeSecKey(_ secKey: (some GPSKKeychainSecKeyConvertible)?, forKey key: String) throws {
-        if let secKey {
-            if (try? internalReadSecKey(forKey: key)) != nil {
-                try internalDeleteSecKey(forKey: key)
-            }
-
-            // Describe the key
-            let attributes = [kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-                              kSecAttrKeyClass: kSecAttrKeyClassPrivate] as [String: Any]
-
-            // Get a SecKey representation.
-            var error: Unmanaged<CFError>?
-            guard let secKey = SecKeyCreateWithData(secKey.x963Representation as CFData,
-                                                    attributes as CFDictionary,
-                                                    &error)
-            else {
-                throw GPSKKeychainError.unableToCreateSecKeyRepresentation(error.debugDescription)
-            }
-
-            try internalStoreSecKey(secKey, forKey: key)
-        } else {
-            try internalDeleteSecKey(forKey: key)
-        }
-    }
-
-    func internalStoreSecKey(_ secKey: SecKey, forKey key: String) throws {
+    func storeSecKey(_ secKey: SecKey, forKey key: String) throws {
         // Describe the add operation.
         let query = [kSecClass: kSecClassKey,
                      kSecAttrApplicationLabel: "\(domain).\(key)",
@@ -135,11 +132,11 @@ private extension GPSKKeychainSecKeyValues {
         // Add the key to the keychain.
         let status = SecItemAdd(query as CFDictionary, nil)
         guard status == errSecSuccess else {
-            throw GPSKKeychainError.unableToWrite(status.message)
+            throw GPSKKeychainError.unableToWrite(message: status.message)
         }
     }
 
-    func internalDeleteSecKey(forKey key: String) throws {
+    func delete(forKey key: String) throws {
         // Describe the add operation.
         let query = [kSecClass: kSecClassKey,
                      kSecAttrApplicationLabel: "\(domain).\(key)",
@@ -149,7 +146,7 @@ private extension GPSKKeychainSecKeyValues {
         // Add the key to the keychain.
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess else {
-            throw GPSKKeychainError.unableToDelete(status.message)
+            throw GPSKKeychainError.unableToDelete(message: status.message)
         }
     }
 }

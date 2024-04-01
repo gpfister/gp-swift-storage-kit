@@ -23,26 +23,23 @@
 import Foundation
 
 enum GPSKSecureEnclaveError: Error {
-    case unableToRead(String)
-    case unableToWrite(String)
-    case unableToDelete(String)
-    case unableToParseSecKeyRepresentation(String)
-    case unableToCreateSecKeyRepresentation(String)
+    case unableToRead(message: String)
+    case unableToWrite(message: String)
+    case unableToDelete(message: String)
+    case unableToParseKeyRepresentation(error: Error)
 }
 
 extension GPSKSecureEnclaveError: CustomStringConvertible {
     var description: String {
         switch self {
-            case let .unableToRead(message):
-                "Unable to read key: \(message)"
-            case let .unableToWrite(message):
-                "Unable to write key: \(message)"
-            case let .unableToDelete(message):
-                "Unable to delete key: \(message)"
-            case let .unableToParseSecKeyRepresentation(message):
-                "Unable to parse SecKey representation: \(message)"
-            case let .unableToCreateSecKeyRepresentation(message):
-                "Unable to create SecKey representation: \(message)"
+        case let .unableToRead(message: message):
+            "Unable to read key: \(message)"
+        case let .unableToWrite(message: message):
+            "Unable to write key: \(message)"
+        case let .unableToDelete(message: message):
+            "Unable to delete key: \(message)"
+        case let .unableToParseKeyRepresentation(error: error):
+            "Unable to parse key representation: \(error.localizedDescription)"
         }
     }
 }
@@ -50,46 +47,38 @@ extension GPSKSecureEnclaveError: CustomStringConvertible {
 extension GPSKSecureEnclaveError: LocalizedError {
     var errorDescription: String? {
         switch self {
-            case let .unableToRead(message):
-                String(
-                    format: NSLocalizedString(
-                        "Unable to read key: %s",
-                        comment: "Unable to read key error"
-                    ),
-                    message
-                )
-            case let .unableToWrite(message):
-                String(
-                    format: NSLocalizedString(
-                        "Unable to write key: %s",
-                        comment: "Unable to write key error"
-                    ),
-                    message
-                )
-            case let .unableToDelete(message):
-                String(
-                    format: NSLocalizedString(
-                        "Unable to delete key: %s",
-                        comment: "Unable to delete key error"
-                    ),
-                    message
-                )
-            case let .unableToParseSecKeyRepresentation(message):
-                String(
-                    format: NSLocalizedString(
-                        "Unable to parse SecKey representation: %s",
-                        comment: "Unable to parse SecKey representation error"
-                    ),
-                    message
-                )
-            case let .unableToCreateSecKeyRepresentation(message):
-                String(
-                    format: NSLocalizedString(
-                        "Unable to create SecKey representation: %s",
-                        comment: "Unable to create SecKey representation"
-                    ),
-                    message
-                )
+        case let .unableToRead(message: message):
+            String(
+                format: NSLocalizedString(
+                    "Unable to read key: %@",
+                    comment: "Unable to read key error"
+                ),
+                message
+            )
+        case let .unableToWrite(message: message):
+            String(
+                format: NSLocalizedString(
+                    "Unable to write key: %@",
+                    comment: "Unable to write key error"
+                ),
+                message
+            )
+        case let .unableToDelete(message: message):
+            String(
+                format: NSLocalizedString(
+                    "Unable to delete key: %@",
+                    comment: "Unable to delete key error"
+                ),
+                message
+            )
+        case let .unableToParseKeyRepresentation(error: error):
+            String(
+                format: NSLocalizedString(
+                    "Unable to parse key representation: %@",
+                    comment: "Unable to parse key representation error"
+                ),
+                error.localizedDescription
+            )
         }
     }
 }

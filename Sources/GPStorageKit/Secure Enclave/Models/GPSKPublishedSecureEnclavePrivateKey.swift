@@ -141,14 +141,14 @@ import SwiftUI
 /// }
 /// ```
 ///
-@propertyWrapper public class GPSKPublishedSecureEnclave<GPSKValue> {
-    private let keyPath: ReferenceWritableKeyPath<GPSKSecureEnclaveValues, GPSKValue>
+@propertyWrapper public class GPSKPublishedSecureEnclavePrivateKey<GPSKValue> {
+    private let keyPath: ReferenceWritableKeyPath<GPSKSecureEnclavePrivateKeyValues, GPSKValue>
     private let SecureEnclaveService = GPSKSecureEnclaveService.shared
     let subject: CurrentValueSubject<GPSKValue, Never>
     let publisher: AnyPublisher<GPSKValue, Never>
     private var cancellables = Set<AnyCancellable>()
 
-    public init(_ keyPath: ReferenceWritableKeyPath<GPSKSecureEnclaveValues, GPSKValue>) {
+    public init(_ keyPath: ReferenceWritableKeyPath<GPSKSecureEnclavePrivateKeyValues, GPSKValue>) {
         self.keyPath = keyPath
         subject = .init(SecureEnclaveService[keyPath])
         publisher = subject.eraseToAnyPublisher()
@@ -182,7 +182,7 @@ import SwiftUI
     public static subscript<GPEnclosingType: ObservableObject>(
         _enclosingInstance instance: GPEnclosingType,
         wrapped _: ReferenceWritableKeyPath<GPEnclosingType, GPSKValue>,
-        storage storageKeyPath: ReferenceWritableKeyPath<GPEnclosingType, GPSKPublishedSecureEnclave>
+        storage storageKeyPath: ReferenceWritableKeyPath<GPEnclosingType, GPSKPublishedSecureEnclavePrivateKey>
     ) -> GPSKValue {
         get {
             instance[keyPath: storageKeyPath].subject.value

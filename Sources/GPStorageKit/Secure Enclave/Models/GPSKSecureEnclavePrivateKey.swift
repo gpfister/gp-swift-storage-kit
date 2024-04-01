@@ -27,14 +27,14 @@ import SwiftUI
 ///   - https://www.avanderlee.com/swift/appstorage-explained/
 ///   - https://www.hackingwithswift.com/quick-start/swiftui/observable-objects-environment-objects-and-published
 
-@propertyWrapper public struct GPSKSecureEnclave<GPSKValue>: DynamicProperty {
+@propertyWrapper public struct GPSKSecureEnclavePrivateKey<GPSKValue>: DynamicProperty {
     @ObservedObject private var keychainObserver: GPSKObservableObject
 
-    private let keyPath: ReferenceWritableKeyPath<GPSKSecureEnclaveValues, GPSKValue>
+    private let keyPath: ReferenceWritableKeyPath<GPSKSecureEnclavePrivateKeyValues, GPSKValue>
     private let SecureEnclaveService = GPSKSecureEnclaveService.shared
     private let subject: CurrentValueSubject<GPSKValue, Never>
 
-    public init(_ keyPath: ReferenceWritableKeyPath<GPSKSecureEnclaveValues, GPSKValue>) {
+    public init(_ keyPath: ReferenceWritableKeyPath<GPSKSecureEnclavePrivateKeyValues, GPSKValue>) {
         self.keyPath = keyPath
         subject = .init(SecureEnclaveService[keyPath])
         let publisher = SecureEnclaveService.valueChangedSubject
@@ -69,7 +69,7 @@ import SwiftUI
 
 // MARK: - Private
 
-private extension GPSKSecureEnclave {
+private extension GPSKSecureEnclavePrivateKey {
     final class GPSKObservableObject: ObservableObject {
         var subscriber: AnyCancellable?
 

@@ -23,10 +23,7 @@
 import Combine
 import Foundation
 
-public protocol GPSKSecureEnclaveKey {
+public protocol GPSKSecureEnclavePrivateKeyKey {
     associatedtype GPSKValue: GPSKSecureEnclavePrivateKeyConvertible
-
-    static var key: String { get }
-    static var defaultValue: Self.GPSKValue? { get }
-    static var isLinkedToUserId: Bool { get }
+    static var service: String { get }
 }

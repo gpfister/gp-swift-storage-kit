@@ -24,10 +24,10 @@ import CryptoKit
 import Foundation
 import LocalAuthentication
 
-/**
- * Extension to allow to save private key as SecKey object is KeyChain store
- * Reference: https://developer.apple.com/documentation/cryptokit/storing_cryptokit_keys_in_the_keychain
- */
+/// This protocol is required for Secure Enclave compatible keys, as this are
+/// the basics to export the data representation (which is not the key it self,
+/// but a piece of data that allow for the key restoration on the secure
+/// enclave. This data representation can be saved on keychain.
 
 public protocol GPSKSecureEnclavePrivateKeyConvertible {
     init(dataRepresentation: Data, authenticationContext: LAContext?) throws

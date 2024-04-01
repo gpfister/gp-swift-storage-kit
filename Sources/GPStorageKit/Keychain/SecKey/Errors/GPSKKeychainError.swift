@@ -23,26 +23,26 @@
 import Foundation
 
 enum GPSKKeychainError: Error {
-    case unableToRead(String)
-    case unableToWrite(String)
-    case unableToDelete(String)
-    case unableToParseSecKeyRepresentation(String)
-    case unableToCreateSecKeyRepresentation(String)
+    case unableToRead(message: String)
+    case unableToWrite(message: String)
+    case unableToDelete(message: String)
+    case unableToParseKeyRepresentation(error: Error)
+    case unableToCreateKeyRepresentation(error: Error)
 }
 
 extension GPSKKeychainError: CustomStringConvertible {
     var description: String {
         switch self {
-            case let .unableToRead(message):
-                "Unable to read key: \(message)"
-            case let .unableToWrite(message):
+        case let .unableToRead(message: message):
+            "Unable to read key: \(message)"
+            case let .unableToWrite(message: message):
                 "Unable to write key: \(message)"
             case let .unableToDelete(message):
                 "Unable to delete key: \(message)"
-            case let .unableToParseSecKeyRepresentation(message):
-                "Unable to parse SecKey representation: \(message)"
-            case let .unableToCreateSecKeyRepresentation(message):
-                "Unable to create SecKey representation: \(message)"
+            case let .unableToParseKeyRepresentation(error: error):
+                "Unable to parse key representation: \(error.localizedDescription)"
+            case let .unableToCreateKeyRepresentation(error: error):
+                "Unable to create key representation: \(error.localizedDescription)"
         }
     }
 }
@@ -50,7 +50,7 @@ extension GPSKKeychainError: CustomStringConvertible {
 extension GPSKKeychainError: LocalizedError {
     var errorDescription: String? {
         switch self {
-            case let .unableToRead(message):
+            case let .unableToRead(message: message):
                 String(
                     format: NSLocalizedString(
                         "Unable to read key: %s",
@@ -58,7 +58,7 @@ extension GPSKKeychainError: LocalizedError {
                     ),
                     message
                 )
-            case let .unableToWrite(message):
+            case let .unableToWrite(message: message):
                 String(
                     format: NSLocalizedString(
                         "Unable to write key: %s",
@@ -66,7 +66,7 @@ extension GPSKKeychainError: LocalizedError {
                     ),
                     message
                 )
-            case let .unableToDelete(message):
+        case let .unableToDelete(message: message):
                 String(
                     format: NSLocalizedString(
                         "Unable to delete key: %s",
@@ -74,21 +74,21 @@ extension GPSKKeychainError: LocalizedError {
                     ),
                     message
                 )
-            case let .unableToParseSecKeyRepresentation(message):
+            case let .unableToParseKeyRepresentation(error: error):
                 String(
                     format: NSLocalizedString(
-                        "Unable to parse SecKey representation: %s",
-                        comment: "Unable to parse SecKey representation error"
+                        "Unable to parse key representation: %s",
+                        comment: "Unable to parse key representation error"
                     ),
-                    message
+                    error.localizedDescription
                 )
-            case let .unableToCreateSecKeyRepresentation(message):
+            case let .unableToCreateKeyRepresentation(error: error):
                 String(
                     format: NSLocalizedString(
-                        "Unable to create SecKey representation: %s",
-                        comment: "Unable to create SecKey representation"
+                        "Unable to create key representation: %s",
+                        comment: "Unable to create key representation"
                     ),
-                    message
+                    error.localizedDescription
                 )
         }
     }

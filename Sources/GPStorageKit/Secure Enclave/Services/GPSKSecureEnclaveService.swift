@@ -32,15 +32,15 @@ import Foundation
 public final class GPSKSecureEnclaveService {
     public static let shared = GPSKSecureEnclaveService()
 
-    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKSecureEnclaveValues>, Never>()
+    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKSecureEnclavePrivateKeyValues>, Never>()
 
-    private let SecureEnclaveValues: GPSKSecureEnclaveValues
+    private let SecureEnclaveValues: GPSKSecureEnclavePrivateKeyValues
 
-    init(SecureEnclaveValues: GPSKSecureEnclaveValues = .default) {
+    init(SecureEnclaveValues: GPSKSecureEnclavePrivateKeyValues = .default) {
         self.SecureEnclaveValues = SecureEnclaveValues
     }
 
-    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKSecureEnclaveValues, GPSKValue>) -> GPSKValue {
+    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKSecureEnclavePrivateKeyValues, GPSKValue>) -> GPSKValue {
         get { SecureEnclaveValues[keyPath: keyPath] }
         set {
             SecureEnclaveValues[keyPath: keyPath] = newValue
