@@ -175,8 +175,8 @@ import SwiftUI
 
     @available(*, unavailable, message: "Wrapped value should not be used.")
     public var wrappedValue: GPSKValue {
-        get { fatalError() }
-        set { fatalError() }
+        get { fatalError("Wrapped value should not be used.") }
+        set { fatalError("Wrapped value should not be used.") }
     }
 
     public static subscript<GPEnclosingType: ObservableObject>(

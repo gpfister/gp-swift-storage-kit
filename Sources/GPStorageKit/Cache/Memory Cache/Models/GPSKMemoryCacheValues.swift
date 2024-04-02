@@ -37,14 +37,14 @@ public class GPSKMemoryCacheValues {
     ) -> GPSKKey.GPSKValue {
         get {
             guard (memoryCacheKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !memoryCacheKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            else { fatalError("[GPSKMemoryCacheValues] No userId set") }
             let key = memoryCacheKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(memoryCacheKey.key)" : memoryCacheKey.key
             let value: GPSKKey.GPSKValue? = value(forKey: key)
             return value ?? memoryCacheKey.defaultValue
         }
         set {
             guard (memoryCacheKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !memoryCacheKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            else { fatalError("[GPSKMemoryCacheValues] No userId set") }
             let key = memoryCacheKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(memoryCacheKey.key)" : memoryCacheKey.key
             if let newValue = newValue as? GPSKOptionalValue, newValue.gskIsNil {
                 removeValue(forKey: key)

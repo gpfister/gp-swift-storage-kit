@@ -37,14 +37,14 @@ public class GPSKUserDefaultValues {
     ) -> GPSKKey.GPSKValue {
         get {
             guard (userDefaultKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !userDefaultKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            else { fatalError("[GPSKUserDefaultValues] No userId set") }
             let key = userDefaultKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(userDefaultKey.key)" : userDefaultKey.key
             let value: GPSKKey.GPSKValue? = value(forKey: key)
             return value ?? userDefaultKey.defaultValue
         }
         set {
             guard (userDefaultKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !userDefaultKey.isLinkedToUserId
-            else { /* return */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            else { fatalError("[GPSKUserDefaultValues] No userId set") }
             let key = userDefaultKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(userDefaultKey.key)" : userDefaultKey.key
             if let newValue = newValue as? GPSKOptionalValue, newValue.gskIsNil {
                 removeObject(forKey: key)

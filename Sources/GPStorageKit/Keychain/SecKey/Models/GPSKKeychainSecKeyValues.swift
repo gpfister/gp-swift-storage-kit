@@ -40,14 +40,14 @@ public class GPSKKeychainSecKeyValues {
     ) -> GPSKKey.GPSKValue? {
         get {
             guard (keychainSecKeyKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !keychainSecKeyKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            else { fatalError("[GPSKKeychainSecKeyValues] No userId set") }
             let key = keychainSecKeyKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(keychainSecKeyKey.key)" : keychainSecKeyKey.key
             let secKey: GPSKKey.GPSKValue? = try? read(forKey: key)
             return secKey ?? keychainSecKeyKey.defaultValue
         }
         set {
             guard (keychainSecKeyKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !keychainSecKeyKey.isLinkedToUserId
-            else { /* return userDefaultKey.defaultValue */ fatalError("[GPSKUserDefaultValues] No userId set") }
+            else { fatalError("[GPSKKeychainSecKeyValues] No userId set") }
             let key = keychainSecKeyKey.isLinkedToUserId ? "user.\(GPSKStorageService.shared.userId ?? "").\(keychainSecKeyKey.key)" : keychainSecKeyKey.key
             if let newValue {
                 try? store(newValue, forKey: key)
