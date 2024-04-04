@@ -21,10 +21,25 @@
 //
 
 import Combine
+import CryptoKit
 import Foundation
 
-public protocol GPSKSecureEnclavePrivateKeyKey {
-    associatedtype GPSKValue: GPSKSecureEnclavePrivateKeyConvertible
-    static var service: String { get }
-    static var isLinkedToUserId: Bool { get }
+public final class GPSKKeychainDataService {
+    public static let shared = GPSKKeychainDataService()
+
+    let valueChangedSubject = PassthroughSubject<PartialKeyPath<GPSKKeychainDataValues>, Never>()
+
+    private let KeychainDataValues: GPSKKeychainDataValues
+
+    init(KeychainDataValues: GPSKKeychainDataValues = .default) {
+        self.KeychainDataValues = KeychainDataValues
+    }
+
+    subscript<GPSKValue>(_ keyPath: ReferenceWritableKeyPath<GPSKKeychainDataValues, GPSKValue>) -> GPSKValue {
+        get { KeychainDataValues[keyPath: keyPath] }
+        set {
+            KeychainDataValues[keyPath: keyPath] = newValue
+            valueChangedSubject.send(keyPath)
+        }
+    }
 }

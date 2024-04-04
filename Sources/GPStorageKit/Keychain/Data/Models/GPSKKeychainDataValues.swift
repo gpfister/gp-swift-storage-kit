@@ -24,8 +24,8 @@ import Combine
 import CryptoKit
 import Foundation
 
-public class GPSKSecureEnclavePrivateKeyValues {
-    public static let `default` = GPSKSecureEnclavePrivateKeyValues()
+public class GPSKKeychainDataValues {
+    public static let `default` = GPSKKeychainDataValues()
 
     var values: [String: Any] = [:]
 
@@ -35,23 +35,25 @@ public class GPSKSecureEnclavePrivateKeyValues {
         self.domain = domain ?? Bundle.main.bundleIdentifier!
     }
 
-    public subscript<GPSKKey: GPSKSecureEnclavePrivateKeyKey>(
-        _ privateKey: GPSKKey.Type
+    public subscript<GPSKKey: GPSKKeychainDataKey>(
+        _ keychainDataKey: GPSKKey.Type
     ) -> GPSKKey.GPSKValue? {
         get {
-            guard (privateKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !privateKey.isLinkedToUserId
+            guard (keychainDataKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !keychainDataKey.isLinkedToUserId
             else { fatalError("[GPSKMemoryCacheValues] No userId set") }
             let userId = GPSKStorageService.shared.userId  ?? "generic"
-            return try? read(for: userId, service: privateKey.service)
+            let data = keychainDataKey.decoder(try? read(for: userId, service: keychainDataKey.service))
+            return data ?? keychainDataKey.defaultValue
         }
         set {
-            guard (privateKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !privateKey.isLinkedToUserId
+            guard (keychainDataKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !keychainDataKey.isLinkedToUserId
             else { fatalError("[GPSKMemoryCacheValues] No userId set") }
             let userId = GPSKStorageService.shared.userId  ?? "generic"
-            if let newValue {
-                try? store(newValue, for: userId, service: privateKey.service)
+            let data = keychainDataKey.encoder(newValue)
+            if let data {
+                try? store(data, for: userId, service: keychainDataKey.service)
             } else {
-                try? delete(for: userId, service: privateKey.service)
+                try? delete(for: userId, service: keychainDataKey.service)
             }
         }
     }
@@ -59,8 +61,8 @@ public class GPSKSecureEnclavePrivateKeyValues {
 
 // MARK: - Private
 
-private extension GPSKSecureEnclavePrivateKeyValues {
-    func read<T: GPSKSecureEnclavePrivateKeyConvertible>(for account: String, service: String) throws -> T? {
+private extension GPSKKeychainDataValues {
+    func read(for account: String, service: String) throws -> Data? {
         let attributes = [kSecAttrService: "\(domain).\(service)",
                           kSecAttrAccount: account,
                                 kSecClass: kSecClassGenericPassword,
@@ -73,18 +75,14 @@ private extension GPSKSecureEnclavePrivateKeyValues {
             throw GPSKSecureEnclaveError.unableToRead(message: status.message)
         }
         
-        do {
-            return try T(dataRepresentation: (item as! Data))
-        } catch {
-            throw GPSKSecureEnclaveError.unableToParseKeyRepresentation(error: error)
-        }
+        return item as? Data
     }
     
-    func store(_ privateKey: some GPSKSecureEnclavePrivateKeyConvertible, for account: String, service: String, requiresBiometry: Bool = false) throws{
+    func store(_ data: Data, for account: String, service: String, requiresBiometry: Bool = false) throws{
         let attributes = [kSecAttrService: "\(domain).\(service)",
                           kSecAttrAccount: account,
                                 kSecClass: kSecClassGenericPassword,
-                            kSecValueData: privateKey.dataRepresentation,
+                            kSecValueData: data,
         ] as CFDictionary
         
         let status = SecItemAdd(attributes, nil)
