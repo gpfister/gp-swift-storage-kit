@@ -39,13 +39,15 @@ public class GPSKSecureEnclavePrivateKeyValues {
         _ privateKey: GPSKKey.Type
     ) -> GPSKKey.GPSKValue? {
         get {
-            guard let userId = GPSKStorageService.shared.userId 
-            else { fatalError("[GPSKSecureEnclavePrivateKeyValues] No userId set") }
+            guard (privateKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !privateKey.isLinkedToUserId
+            else { fatalError("[GPSKMemoryCacheValues] No userId set") }
+            let userId = GPSKStorageService.shared.userId  ?? "generic"
             return try? read(for: userId, service: privateKey.service)
         }
         set {
-            guard let userId = GPSKStorageService.shared.userId 
-            else { fatalError("[GPSKSecureEnclavePrivateKeyValues] No userId set") }
+            guard (privateKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !privateKey.isLinkedToUserId
+            else { fatalError("[GPSKMemoryCacheValues] No userId set") }
+            let userId = GPSKStorageService.shared.userId  ?? "generic"
             if let newValue {
                 try? store(newValue, for: userId, service: privateKey.service)
             } else {

@@ -39,12 +39,16 @@ public class GPSKKeychainDataValues {
         _ keychainDataKey: GPSKKey.Type
     ) -> GPSKKey.GPSKValue? {
         get {
-            guard let userId = GPSKStorageService.shared.userId else { fatalError("[GPSKKeychainDataValues] No userId set") }
+            guard (keychainDataKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !keychainDataKey.isLinkedToUserId
+            else { fatalError("[GPSKMemoryCacheValues] No userId set") }
+            let userId = GPSKStorageService.shared.userId  ?? "generic"
             let data = keychainDataKey.decoder(try? read(for: userId, service: keychainDataKey.service))
             return data ?? keychainDataKey.defaultValue
         }
         set {
-            guard let userId = GPSKStorageService.shared.userId else { fatalError("[GPSKKeychainDataValues] No userId set") }
+            guard (keychainDataKey.isLinkedToUserId && GPSKStorageService.shared.userId != nil) || !keychainDataKey.isLinkedToUserId
+            else { fatalError("[GPSKMemoryCacheValues] No userId set") }
+            let userId = GPSKStorageService.shared.userId  ?? "generic"
             let data = keychainDataKey.encoder(newValue)
             if let data {
                 try? store(data, for: userId, service: keychainDataKey.service)

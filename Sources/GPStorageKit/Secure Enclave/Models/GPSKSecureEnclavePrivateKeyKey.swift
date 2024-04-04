@@ -26,4 +26,5 @@ import Foundation
 public protocol GPSKSecureEnclavePrivateKeyKey {
     associatedtype GPSKValue: GPSKSecureEnclavePrivateKeyConvertible
     static var service: String { get }
+    static var isLinkedToUserId: Bool { get }
 }

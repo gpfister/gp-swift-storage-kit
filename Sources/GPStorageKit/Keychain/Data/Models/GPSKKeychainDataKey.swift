@@ -28,6 +28,42 @@ public protocol GPSKKeychainDataKey {
     
     static var service: String { get }
     static var defaultValue: Self.GPSKValue? { get }
+    static var isLinkedToUserId: Bool { get }
+    
     static func encoder(_ value: Self.GPSKValue?) -> Data?
     static func decoder(_ value: Data?) -> Self.GPSKValue?
+}
+
+public extension GPSKKeychainDataKey where GPSKValue == String {
+    static func encoder(_ value: String?) -> Data? {
+        guard let value else { return nil }
+        return value.data(using: .utf8)
+    }
+    
+    static func decoder(_ value: Data?) -> String? {
+        guard let value else { return nil }
+        return String(data: value, encoding: .utf8)
+    }
+}
+
+public extension GPSKKeychainDataKey where GPSKValue == Data {
+    static func encoder(_ value: Data?) -> Data? {
+        return value
+    }
+    
+    static func decoder(_ value: Data?) -> Data? {
+        return value
+    }
+}
+
+public extension GPSKKeychainDataKey where GPSKValue: Codable {
+    static func encoder(_ value: GPSKValue?) -> Data? {
+        guard let value else { return nil }
+        return try? JSONEncoder().encode(value)
+    }
+    
+    static func decoder(_ value: Data?) -> GPSKValue? {
+        guard let value else { return nil }
+        return try? JSONDecoder().decode(GPSKValue.self, from: value)
+    }
 }
